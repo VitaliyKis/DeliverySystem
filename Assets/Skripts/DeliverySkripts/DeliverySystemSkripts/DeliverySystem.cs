@@ -3,29 +3,55 @@ using System.Collections.Generic;
 
 public class DeliverySystem : MonoBehaviour
 {
-    private IDeliveryState deliverySystemState;
-    public List<DeliveryPoint> DeliveryPoints;
-    public int activeDeliveryPoint; // точка в которую надо отвезти заказ
-    
+   
+    public List<DeliveryPoint> deliveryPoints;
+    public List<PickUpPoint> pickUpPoints;
+    [Space(3)]
+    public int activeDeliveryPoint;
+  
+ 
+
 
     private void Start()
     {
-        deliverySystemState = new NotDeliverySystemState(this);
-        CustomEventBus.OrderDelivered += DoActionWithState; //подписываюсь на ивент получения заказа
+       
+        CustomEventBus.DeliveryPointShowed += ShowDeliveryPoint;
+        CustomEventBus.OrderGave += GiveOrder;
+        CustomEventBus.OrderDeliveredToReceiver += OrderDelivered;
+
+       
     }
     private void OnDestroy()
     {
-        CustomEventBus.OrderDelivered -= DoActionWithState; //Отписываюсь при уничтожении обьекта
+
+        CustomEventBus.DeliveryPointShowed -= ShowDeliveryPoint;
+        CustomEventBus.OrderGave -= GiveOrder;
+        CustomEventBus.OrderDeliveredToReceiver -= OrderDelivered;
+
 
     }
-    public void DoActionWithState() //Делаем что-то, в зависимости от состояния системы
+    public void OrderDelivered()
     {
-        deliverySystemState.TakeDelivery();
+        deliveryPoints[activeDeliveryPoint].TurnOff();
+        Debug.Log("Заказ доставлен получателю");
+    }
+    public void GiveOrder()
+    {
+        pickUpPoints[activeDeliveryPoint].TurnOff();
+        activeDeliveryPoint = Random.RandomRange(0, deliveryPoints.Count);
+        deliveryPoints[activeDeliveryPoint].TurnOn();
+        Debug.Log("Заказ забран из пункта выдачи");
+
+
+    }
+    public void ShowDeliveryPoint()
+    {
+        activeDeliveryPoint = Random.RandomRange(0, pickUpPoints.Count);
+        pickUpPoints[activeDeliveryPoint].TurnOn();
+        Debug.Log("Доставщик получил местонахождения пункта выдачи заказа");
+
     }
 
-    public void SetState(IDeliveryState state)
-    {
-        deliverySystemState = state;
-    }
+     
    
 }

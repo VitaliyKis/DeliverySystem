@@ -1,13 +1,13 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class DeliveryPoint : MonoBehaviour
+public class PickUpPoint : MonoBehaviour
 {
     
-    
-    public void ReceiveOrderForReceiver()
-    {
-        CustomEventBus.OrderDeliveredToReceiver();
+     
+    public void ReceiveOrder()
+    { 
+        CustomEventBus.OrderGave?.Invoke();
+        
     }
     public void TurnOff()
     {
@@ -17,12 +17,11 @@ public class DeliveryPoint : MonoBehaviour
     {
         this.gameObject.SetActive(true);
     }
-    private void OnTriggerStay(Collider other)
+    private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            ReceiveOrderForReceiver();
+            ReceiveOrder();
         }
     }
-
 }
